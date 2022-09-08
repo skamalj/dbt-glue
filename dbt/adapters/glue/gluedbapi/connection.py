@@ -52,6 +52,9 @@ class GlueConnection:
             "--enable-glue-datacatalog": "true"
         }
 
+        if (self.credentials.sync_tool_classes is not None):
+            args["--sync-tool-classes"] = f"{self.credentials.sync_tool_classes}"
+
         if (self.credentials.extra_jars is not None):
             args["--extra-jars"] = f"{self.credentials.extra_jars}"
 

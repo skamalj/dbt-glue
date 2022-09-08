@@ -426,7 +426,7 @@ SqlWrapper2.execute("""select * from {model["schema"]}.{model["name"]} limit 1""
 
 
     @available
-    def hudi_merge_table(self, target_relation, request, primary_key, partition_key, custom_location):
+    def hudi_merge_table(self, target_relation, request, primary_key, partition_key, custom_location, hudi_options):
         session, client, cursor = self.get_connection()
         isTableExists = False
         if self.check_relation_exists(target_relation):
@@ -448,7 +448,7 @@ if outputDf.count() > 0:
         outputDf = outputDf.withColumn(partitionKey, concat(lit(partitionKey + '='), col(partitionKey)))
         '''
 
-        begin_of_hudi_setup = f'''combinedConf = {{'className' : 'org.apache.hudi', 'hoodie.datasource.hive_sync.use_jdbc':'false', 'hoodie.datasource.write.precombine.field': 'update_hudi_ts', 'hoodie.consistency.check.enabled': 'true', 'hoodie.datasource.write.recordkey.field': '{primary_key}', 'hoodie.table.name': '{target_relation.name}', 'hoodie.datasource.hive_sync.database': '{target_relation.schema}', 'hoodie.datasource.hive_sync.table': '{target_relation.name}', 'hoodie.datasource.hive_sync.enable': 'true','''
+        begin_of_hudi_setup = f'''combinedConf = {{'className' : 'org.apache.hudi', 'hoodie.datasource.hive_sync.use_jdbc':'false', 'hoodie.datasource.write.precombine.field': 'update_hudi_ts', 'hoodie.datasource.hive_sync.skip_ro_suffix':'true', 'hoodie.consistency.check.enabled': 'true', 'hoodie.datasource.write.recordkey.field': '{primary_key}', 'hoodie.table.name': '{target_relation.name}', 'hoodie.datasource.hive_sync.database': '{target_relation.schema}', 'hoodie.datasource.hive_sync.table': '{target_relation.name}', 'hoodie.datasource.hive_sync.enable': 'true','''
 
         hudi_partitionning = f''' 'hoodie.datasource.write.partitionpath.field': '{partition_key}', 'hoodie.datasource.hive_sync.partition_extractor_class': 'org.apache.hudi.hive.MultiPartKeysValueExtractor', 'hoodie.datasource.hive_sync.partition_fields': '{partition_key}','''
 
@@ -462,18 +462,22 @@ if outputDf.count() > 0:
             write_mode = "Append"
             core_code = f'''
         {begin_of_hudi_setup} {hudi_partitionning} {hudi_upsert}
+        combinedConf.update({hudi_options})
         {self.hudi_write(write_mode, session, target_relation, custom_location)}
     else:
         {begin_of_hudi_setup} {hudi_no_partition} {hudi_upsert}
+        combinedConf.update({hudi_options})
         {self.hudi_write(write_mode, session, target_relation, custom_location)}
         '''
         else:
             write_mode = "Overwrite"
             core_code = f'''
         {begin_of_hudi_setup} {hudi_partitionning} {hudi_insert}
+        combinedConf.update({hudi_options})
         {self.hudi_write(write_mode, session, target_relation, custom_location)}
     else:
         {begin_of_hudi_setup} {hudi_no_partition} {hudi_insert}
+        combinedConf.update({hudi_options})
         {self.hudi_write(write_mode, session, target_relation, custom_location)}
         '''
 

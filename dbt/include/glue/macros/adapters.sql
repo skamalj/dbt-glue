@@ -34,7 +34,7 @@
 {% endmacro %}
 
 {% macro glue__create_temporary_view(relation, sql) -%}
-  create or replace temporary view {{ relation.include(schema=false) }} as
+  create or replace view {{ relation.include(schema=false) }} as
     {{ sql }}
 {% endmacro %}
 

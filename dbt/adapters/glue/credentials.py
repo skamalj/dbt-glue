@@ -19,6 +19,7 @@ class GlueCredentials(Credentials):
     security_configuration: Optional[str] = None
     connections: Optional[str] = None
     conf: Optional[str] = None
+    sync_tool_classes: Optional[str] = None
     
     @property
     def type(self):
@@ -46,5 +47,6 @@ class GlueCredentials(Credentials):
             'glue_version',
             'security_configuration',
             'connections',
-            'conf'
+            'conf',
+            'sync_tool_classes'
         ]
