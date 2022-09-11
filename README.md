@@ -370,7 +370,14 @@ dbt will run an [atomic `merge` statement](https://hudi.apache.org/docs/writing_
     materialized='incremental',
     incremental_strategy='merge',
     unique_key='user_id',
-    file_format='hudi'
+    file_format='hudi',
+    partition_by='dept',
+    hudi_options={
+        'hoodie.datasource.write.table.type':'COPY_ON_WRITE',
+        'hoodie.datasource.write.precombine.field': 'eventtime',
+        'hoodie.combine.before.insert':'true',
+        'hoodie.datasource.write.hive_style_partitioning':'true'
+   },
 ) }}
 
 with new_events as (

@@ -442,10 +442,11 @@ spark = SparkSession.builder \
 .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
 .getOrCreate()
 inputDf = spark.sql("""{request}""")
+partitionKey = "{partition_key}"
 outputDf = inputDf.withColumn("update_hudi_ts",current_timestamp())
 if outputDf.count() > 0:
-    if {partition_key} is not None:
-        outputDf = outputDf.withColumn(partitionKey, concat(lit(partitionKey + '='), col(partitionKey)))
+    if partitionKey is not None:
+        #outputDf = outputDf.withColumn(partitionKey, concat(lit(partitionKey + '='), col(partitionKey)))
         '''
 
         begin_of_hudi_setup = f'''combinedConf = {{'className' : 'org.apache.hudi', 'hoodie.datasource.hive_sync.use_jdbc':'false', 'hoodie.datasource.write.precombine.field': 'update_hudi_ts', 'hoodie.datasource.hive_sync.skip_ro_suffix':'true', 'hoodie.consistency.check.enabled': 'true', 'hoodie.datasource.write.recordkey.field': '{primary_key}', 'hoodie.table.name': '{target_relation.name}', 'hoodie.datasource.hive_sync.database': '{target_relation.schema}', 'hoodie.datasource.hive_sync.table': '{target_relation.name}', 'hoodie.datasource.hive_sync.enable': 'true','''
