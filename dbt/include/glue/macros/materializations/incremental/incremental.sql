@@ -21,7 +21,7 @@
 
   {% if file_format == 'hudi' %}
         {{ adapter.hudi_merge_table(target_relation, sql, unique_key, partition_by, custom_location, hudi_options) }}
-        {% set build_sql = "select * from " + target_relation.schema + "." + target_relation.identifier %}
+        {% set build_sql = "select * from " + target_relation.schema + "." + target_relation.identifier + " limit 1" %}
   {% else %}
       {% if strategy == 'insert_overwrite' and partition_by %}
         {% call statement() %}
