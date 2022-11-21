@@ -445,7 +445,7 @@ inputDf = spark.sql("""{request}""")
 partitionKey = "{partition_key}"
 outputDf = inputDf.withColumn("update_hudi_ts",current_timestamp())
 if outputDf.count() > 0:
-    if partitionKey is not None:
+    if partitionKey is not "None":
         #outputDf = outputDf.withColumn(partitionKey, concat(lit(partitionKey + '='), col(partitionKey)))
         '''
 
